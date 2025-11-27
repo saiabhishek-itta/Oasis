@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oasis - Teen Journal</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(to bottom, #e0f7fa, #f1f8e9);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      color: #2e7d32;
+      font-size: 2.5em;
+      margin-bottom: 25px;
+      font-family: Georgia, serif;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #388e3c;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 15px;
+      font-size: 1em;
+      border: 2px solid #a5d6a7;
+      border-radius: 12px;
+      resize: none;
+      background: #f0fff4;
+      font-family: inherit;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #66bb6a;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 15px;
+    }
+    label {
+      color: #555;
+      font-weight: 500;
+    }
+    select, button {
+      padding: 12px 20px;
+      font-size: 1em;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    select {
+      background: #dcedc8;
+      color: #2e7d32;
+      font-weight: 500;
+    }
+    button {
+      background: #66bb6a;
+      color: white;
+      font-weight: 500;
+      transition: background 0.3s, transform 0.2s;
+    }
+    button:hover {
+      background: #4caf50;
+      transform: translateY(-2px);
+    }
+    .entry {
+      background: #f0fff4;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 12px;
+      border-left: 5px solid #66bb6a;
+    }
+    .entry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .date {
+      color: #777;
+      font-size: 0.9em;
+    }
+    .delete-btn {
+      background: none;
+      color: #e57373;
+      padding: 5px 10px;
+      font-size: 0.85em;
+    }
+    .delete-btn:hover {
+      color: #c62828;
+      background: #ffebee;
+    }
+    .entry-content {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .mood-tag {
+      font-weight: bold;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.85em;
+      white-space: nowrap;
+    }
+    .Happy { background: #f9a825; }
+    .Sad { background: #1565c0; }
+    .Neutral { background: #8d6e63; }
+    .Anxious { background: #d32f2f; }
+    .Excited { background: #fb8c00; }
+    .stats-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f0fff4;
+      padding: 8px 12px;
+      border-radius: 10px;
+    }
+    .tips-card {
+      background: #e8f5e9;
+    }
+    .tips-card ul {
+      list-style: none;
+      padding: 0;
+    }
+    .tips-card li {
+      padding: 8px 0;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .tips-card li::before {
+      content: "🌱";
+    }
+    .empty-state {
+      color: #999;
+      font-style: italic;
+      padding: 10px 0;
+    }
+    .footer {
+      text-align: center;
+      color: #999;
+      font-size: 0.9em;
+      margin-top: 20px;
+    }
+    #entriesSection { display: none; }
+    #entriesSection.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌿 Oasis 🌿</h1>
+    
+    <!-- Entry Form -->
+    <div class="card">
+      <textarea id="entryText" placeholder="Write your thoughts here..."></textarea>
+      <div class="controls">
+        <label for="moodSelect">Mood:</label>
+        <select id="moodSelect">
+          <option>Happy</option>
+          <option>Sad</option>
+          <option>Neutral</option>
+          <option>Anxious</option>
+          <option>Excited</option>
+        </select>
+        <button onclick="addEntry()">Save Entry</button>
+        <button onclick="toggleEntries()">Show Entries</button>
+      </div>
+    </div>
+
+    <!-- Past Entries -->
+    <div id="entriesSection" class="card">
+      <h2>📝 Past Entries</h2>
+      <div id="entryList"></div>
+    </div>
+
+    <!-- Mood Stats -->
+    <div class="card">
+      <h2>📊 Mood Tracker</h2>
+      <div id="statsList" class="stats-container"></div>
+    </div>
+
+    <!-- Tips -->
+    <div class="card tips-card">
+      <h2>🧘 Calm Down Tips</h2>
+      <ul>
+        <li>Take a short walk outside</li>
+        <li>Listen to calming music or your favorite songs</li>
+        <li>Do 5 deep breaths</li>
+        <li>Write down your thoughts in this journal</li>
+        <li>Drink a glass of water</li>
+        <li>Stretch or do light exercise</li>
+        <li>Talk to a friend or family member you trust</li>
+      </ul>
+    </div>
+
+    <p class="footer">Your entries are saved locally in your browser 💚</p>
+  </div>
+
+  <script>
+    // Load existing entries from localStorage
+    let entries = JSON.parse(localStorage.getItem('oasis-entries')) || [];
+    let entriesVisible = false;
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      displayStats();
+      renderEntries();
+    });
+
+    // Save a new entry
+    function addEntry() {
+      const textEl = document.getElementById('entryText');
+      const text = textEl.value.trim();
+      const mood = document.getElementById('moodSelect').value;
+      
+      if (text === "") {
+        alert("Please write something before saving!");
+        return;
+      }
+      
+      const entry = {
+        id: Date.now(),
+        text: text,
+        mood: mood,
+        dateTime: new Date().toLocaleString()
+      };
+      
+      entries.unshift(entry);
+      localStorage.setItem('oasis-entries', JSON.stringify(entries));
+      textEl.value = '';
+      
+      displayStats();
+      renderEntries();
+      alert("Entry saved! 🌿");
+    }
+
+    // Toggle entries visibility
+    function toggleEntries() {
+      entriesVisible = !entriesVisible;
+      const section = document.getElementById('entriesSection');
+      section.classList.toggle('show', entriesVisible);
+      event.target.textContent = entriesVisible ? 'Hide Entries' : 'Show Entries';
+    }
+
+    // Delete an entry
+    function deleteEntry(id) {
+      if (confirm('Delete this entry?')) {
+        entries = entries.filter(e => e.id !== id);
+        localStorage.setItem('oasis-entries', JSON.stringify(entries));
+        displayStats();
+        renderEntries();
+      }
+    }
+
+    // Render all entries
+    function renderEntries() {
+      const list = document.getElementById('entryList');
+      
+      if (entries.length === 0) {
+        list.innerHTML = '<p class="empty-state">No entries yet! Start journaling above.</p>';
+        return;
+      }
+      
+      list.innerHTML = entries.map(e => `
+        <div class="entry">
+          <div class="entry-header">
+            <span class="date">${e.dateTime}</span>
+            <button class="delete-btn" onclick="deleteEntry(${e.id})">Delete</button>
+          </div>
+          <div class="entry-content">
+            <span class="mood-tag ${e.mood}">${e.mood}</span>
+            <p>${escapeHtml(e.text)}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Update mood tracker stats
+    function displayStats() {
+      const stats = {};
+      entries.forEach(e => {
+        stats[e.mood] = (stats[e.mood] || 0) + 1;
+      });
+      
+      const list = document.getElementById('statsList');
+      
+      if (Object.keys(stats).length === 0) {
+        list.innerHTML = '<p class="empty-state">No mood data yet.</p>';
+        return;
+      }
+      
+      list.innerHTML = Object.entries(stats).map(([mood, count]) => `
+        <div class="stat-item">
+          <span class="mood-tag ${mood}">${mood}</span>
+          <span>${count} ${count === 1 ? 'entry' : 'entries'}</span>
+        </div>
+      `).join('');
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
